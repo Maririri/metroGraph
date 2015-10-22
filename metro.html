@@ -1,9 +1,8 @@
-<!--#FF0000 красный -->
-<!--#800080 фиолетовый -->
-<!--#0000FF синий -->
-<!--#008000 зеленый -->
-<!--#FFA500 оранжевый -->
-
+<!--#FF0000 РєСЂР°СЃРЅС‹Р№ -->
+<!--#800080 С„РёРѕР»РµС‚РѕРІС‹Р№ -->
+<!--#0000FF СЃРёРЅРёР№ -->
+<!--#008000 Р·РµР»РµРЅС‹Р№ -->
+<!--#FFA500 РѕСЂР°РЅР¶РµРІС‹Р№ -->
 <!-- START SIGMA IMPORTS -->
 <script src="./src/sigma.core.js"></script>
 <script src="./src/conrad.js"></script>
@@ -51,83 +50,72 @@
 <script src="./src/misc/sigma.misc.bindEvents.js"></script>
 <script src="./src/misc/sigma.misc.bindDOMEvents.js"></script>
 <script src="./src/misc/sigma.misc.drawHovers.js"></script>
-
 <script src="./plugins/sigma.renderers.edgeLabels/settings.js"></script>
 <script src="./plugins/sigma.renderers.edgeLabels/sigma.canvas.edges.labels.def.js"></script>
 <script src="./plugins/sigma.renderers.edgeLabels/sigma.canvas.edges.labels.curve.js"></script>
 <script src="./plugins/sigma.renderers.edgeLabels/sigma.canvas.edges.labels.curvedArrow.js"></script>
-
 <script src="stations.js"></script>
-
 <link rel="stylesheet" type="text/css" href="style.css">
-
 <div id="container">
     <div id="graph-container"></div>
-        <div id="info"></div>
-        <div><button onclick="getRoute()">Построить маршрут</button></div>
+    <div id="info"></div>
+    <div><button onclick="getRoute()">РџРѕСЃС‚СЂРѕРёС‚СЊ РјР°СЂС€СЂСѓС‚</button></div>
 </div>
-
 <script>
-var i,
-    j,
-    o,
-    s,
-    startStation,
-    selectedStations = [],
-    id = 0,
-    g = {
-        nodes: [],
-        edges: []
-    };
-
- for (i = 0; i < stations.length; i++) {
-    g.nodes.push({
-        id: id,
-        label: stations[i].name + " " + id ,
-        x: stations[i].x,
-        y: stations[i].y,
-        size: 1,
-        color: stations[i].color
-    });
-    id++;
-}
-
-
-for(i = 0; i < STATIONS_COUNT; i++) {
-    for(j = 0; j < STATIONS_COUNT; j+=i+1) {
-        if(adj[i][j] == 1) {
-            g.edges.push({
-                id: i+j,
-                source: i,
-                target: j,
-                size: 1,
-                color: '#ccc'
-            });
+    var i,
+            j,
+            o,
+            s,
+            startStation,
+            selectedStations = [],
+            id = 0,
+            g = {
+                nodes: [],
+                edges: []
+            };
+    for (i = 0; i < stations.length; i++) {
+        g.nodes.push({
+            id: id,
+            label: stations[i].name + " " + id ,
+            x: stations[i].x,
+            y: stations[i].y,
+            size: 1,
+            color: stations[i].color
+        });
+        id++;
+    }
+    for(i = 0; i < STATIONS_COUNT; i++) {
+        for(j = 0; j < STATIONS_COUNT; j+=i+1) {
+            if(adj[i][j] == 1) {
+                g.edges.push({
+                    id: i+j,
+                    source: i,
+                    target: j,
+                    size: 1,
+                    color: '#ccc'
+                });
+            }
         }
     }
-}
-
-s = new sigma({
-    graph: g,
-    renderer: {
-        container: document.getElementById('graph-container'),
-        type: 'canvas'
-    },
-    settings:{
-        doubleClickEnabled: false,
-        minEdgeSize: 1
-    }
-});
-
-s.bind('doubleClickNode', function(e) {
-    addStation( e.data.node.id);
-});
-
+    s = new sigma({
+        graph: g,
+        renderer: {
+            container: document.getElementById('graph-container'),
+            type: 'canvas'
+        },
+        settings:{
+            doubleClickEnabled: false,
+            minEdgeSize: 1
+        }
+    });
+    s.bind('doubleClickNode', function(e) {
+        addStation( e.data.node.id);
+    });
     function addStation(id) {
         if (startStation == null){
             startStation = id;
             document.getElementById('info')
-                    .innerHTML += "<p>" + stations[id].name + " (старт)</p>";
+                    .innerHTML += "<p>" + stations[id].name + " (СЃС‚Р°СЂС‚)</p>";
         }
         else {
             selectedStations.push(id);
@@ -135,60 +123,54 @@ s.bind('doubleClickNode', function(e) {
                     .innerHTML += "<p>" + stations[id].name + "</p>";
         }
     }
-
-function getRoute() {
-    var routes = [],
-            totalRoutes = [],
-            temp,
-            st = 0,
-            stationCnt = 0,
-            N;
-    if (selectedStations.length > 0) {
-        routes[0] = Array.from(selectedStations);
-        N = factorial(selectedStations.length);
-        for(var shift = 1; shift < N; shift++)
-        {
-
-            if (st == selectedStations.length - 1) {
-                temp = selectedStations[0];
-                selectedStations[0] = selectedStations[selectedStations.length - 1];
-                selectedStations[selectedStations.length - 1] = temp;
-                st = 0;
+    function getRoute() {
+        var routes = [],
+                totalRoutes = [],
+                temp,
+                st = 0,
+                stationCnt = 0,
+                N;
+        if (selectedStations.length > 0) {
+            routes[0] = Array.from(selectedStations);
+            N = factorial(selectedStations.length);
+            for(var shift = 1; shift < N; shift++)
+            {
+                if (st == selectedStations.length - 1) {
+                    temp = selectedStations[0];
+                    selectedStations[0] = selectedStations[selectedStations.length - 1];
+                    selectedStations[selectedStations.length - 1] = temp;
+                    st = 0;
+                }
+                else {
+                    temp = selectedStations[st + 1];
+                    selectedStations[st + 1] = selectedStations[st];
+                    selectedStations[st] = temp;
+                    st++;
+                }
+                routes[shift] = Array.from(selectedStations);
             }
-            else {
-                temp = selectedStations[st + 1];
-                selectedStations[st + 1] = selectedStations[st];
-                selectedStations[st] = temp;
-                st++;
+            for(var i = 0; i < routes.length; i++){
+                stationCnt = bfs(startStation,routes[i][0]);
+                for(var j = 0; j < selectedStations.length - 1; j++) {
+                    stationCnt += bfs(routes[i][j], routes[i][j + 1]);
+                }
+                if(totalRoutes.length > 0) {
+                    if (stationCnt < totalRoutes[0]) totalRoutes = [stationCnt, routes[i]];
+                }
+                else {
+                    totalRoutes = [stationCnt, routes[i]];
+                }
             }
-            routes[shift] = Array.from(selectedStations);
-
+            document.getElementById('info').innerHTML += "<p> РњР°СЂС€СЂСѓС‚: </p>";
+            for(var i = 0; i < totalRoutes[1].length; i++)
+            {
+                document.getElementById('info').innerHTML += "<p>" + stations[totalRoutes[1][i]].name + " " + (i + 1) + "</p>";
+            }
         }
-
-        for(var i = 0; i < routes.length; i++){
-            stationCnt = bfs(startStation,routes[i][0]);
-            for(var j = 0; j < selectedStations.length - 1; j++) {
-                stationCnt += bfs(routes[i][j], routes[i][j + 1]);
-            }
-            if(totalRoutes.length > 0) {
-                if (stationCnt < totalRoutes[0]) totalRoutes = [stationCnt, routes[i]];
-            }
-            else {
-                totalRoutes = [stationCnt, routes[i]];
-            }
+        else {
+            alert("РќРµ РІС‹Р±СЂР°РЅС‹ С‚РѕС‡РєРё");
         }
-        document.getElementById('info').innerHTML += "<p> Маршрут: </p>";
-        for(var i = 0; i < totalRoutes[1].length; i++)
-        {
-            document.getElementById('info').innerHTML += "<p>" + stations[totalRoutes[1][i]].name + " " + (i + 1) + "</p>";
-        }
-
-
     }
-    else {
-        alert("Не выбраны точки");
-    }
-}
     function  bfs(A, B) {
         var route = [];
         var turn = [],
@@ -202,7 +184,6 @@ function getRoute() {
         while (turn.length > 0) {
             curNode = turn.shift();
             for (node = 0; node < stations.length; node++) {
-
                 if (adj[curNode][node] == 1 && !used[node]) {
                     turn.push(node);
                     used[node] = true;
@@ -225,8 +206,8 @@ function getRoute() {
         }
         return route.length;
     }
-function factorial(n)
-{
-    return (n == 1) ? 1 : n * factorial(n - 1);
-}
+    function factorial(n)
+    {
+        return (n == 1) ? 1 : n * factorial(n - 1);
+    }
 </script>
