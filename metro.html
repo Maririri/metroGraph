@@ -64,7 +64,7 @@
 <div id="container">
     <div id="graph-container"></div>
         <div id="info"></div>
-        <div><button onclick="getRout()">Построить маршрут</button></div>
+        <div><button onclick="getRoute()">Построить маршрут</button></div>
 </div>
 
 <script>
@@ -73,7 +73,7 @@ var i,
     o,
     s,
     startStation,
-    selectedStation = [],
+    selectedStations = [],
     id = 0,
     g = {
         nodes: [],
@@ -130,50 +130,67 @@ s.bind('doubleClickNode', function(e) {
                     .innerHTML += "<p>" + stations[id].name + " (старт)</p>";
         }
         else {
-            selectedStation.push(id);
+            selectedStations.push(id);
             document.getElementById('info')
                     .innerHTML += "<p>" + stations[id].name + "</p>";
         }
     }
 
-function getRout() {
-    if (selectedStation.length > 0) {
-        var routs = [],
+function getRoute() {
+    var routes = [],
+            totalRoutes = [],
             temp,
             st = 0,
+            stationCnt = 0,
             N;
-        routs.push(selectedStation);
-        N =  factorial(selectedStation.length) - 1;
-        for(var shift = 0; shift < N; shift++)
+    if (selectedStations.length > 0) {
+        routes[0] = Array.from(selectedStations);
+        N = factorial(selectedStations.length);
+        for(var shift = 1; shift < N; shift++)
         {
 
-            if (st == selectedStation.length - 1) {
-                temp = selectedStation[0];
-                selectedStation[0] = selectedStation[selectedStation.length - 1];
-                selectedStation[selectedStation.length - 1] = temp;
+            if (st == selectedStations.length - 1) {
+                temp = selectedStations[0];
+                selectedStations[0] = selectedStations[selectedStations.length - 1];
+                selectedStations[selectedStations.length - 1] = temp;
                 st = 0;
             }
             else {
-                temp = selectedStation[st + 1];
-                selectedStation[st + 1] = selectedStation[st];
-                selectedStation[st] = temp;
+                temp = selectedStations[st + 1];
+                selectedStations[st + 1] = selectedStations[st];
+                selectedStations[st] = temp;
                 st++;
             }
-            routs.push(Array.from(selectedStation));
+            routes[shift] = Array.from(selectedStations);
+
         }
-        for(i = 0; i < routs.length; i++){
-            document.getElementById('info').innerHTML += "<p>" + routs[i] + "</p>";
+
+        for(var i = 0; i < routes.length; i++){
+            stationCnt = bfs(startStation,routes[i][0]);
+            for(var j = 0; j < selectedStations.length - 1; j++) {
+                stationCnt += bfs(routes[i][j], routes[i][j + 1]);
+            }
+            if(totalRoutes.length > 0) {
+                if (stationCnt < totalRoutes[0]) totalRoutes = [stationCnt, routes[i]];
+            }
+            else {
+                totalRoutes = [stationCnt, routes[i]];
+            }
         }
-        //bfs(startStation, selectedStation[0]);
-    } else {
-        window.alert("Не выбраны точки");
+        document.getElementById('info').innerHTML += "<p> Маршрут: </p>";
+        for(var i = 0; i < totalRoutes[1].length; i++)
+        {
+            document.getElementById('info').innerHTML += "<p>" + stations[totalRoutes[1][i]].name + " " + (i + 1) + "</p>";
+        }
+
+
+    }
+    else {
+        alert("Не выбраны точки");
     }
 }
-    var rout = [],
-        routs = [];
-
     function  bfs(A, B) {
-
+        var route = [];
         var turn = [],
                 node,
                 curNode,
@@ -185,6 +202,7 @@ function getRout() {
         while (turn.length > 0) {
             curNode = turn.shift();
             for (node = 0; node < stations.length; node++) {
+
                 if (adj[curNode][node] == 1 && !used[node]) {
                     turn.push(node);
                     used[node] = true;
@@ -192,23 +210,20 @@ function getRout() {
                 }
             }
         }
-
         curNode = B;
-        rout.push(curNode);
+        route.push(curNode);
         var dist = distance[curNode] - 1;
         while (dist >= 0) {
             for (i = 0; i < stations.length; i++) {
                 if ((adj[curNode][i] == 1) && (distance[i] == dist)) {
-                    rout.push(i);
+                    route.push(i);
                     curNode = i;
                     break;
                 }
             }
             dist--;
         }
-        rout.reverse().forEach(function (i) {
-            document.getElementById('info').innerHTML += "</br>" + stations[i].name + "</br>";
-        });
+        return route.length;
     }
 function factorial(n)
 {
